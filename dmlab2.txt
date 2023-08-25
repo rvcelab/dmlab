@@ -1,0 +1,15 @@
+2)select u.u_add from user u,installs i,solar_panel p where u.B_no=i.B_no and p.PV_no=i.PV_no and p.cap=(select max(cap) from solar_panel p);
+
+
+3)select u.u_add from user u,installs i,solar_panel p where u.B_no=i.B_no and p.PV_no=i.PV_no and p.pv_type='mono';
+
+
+5)select v.* from vendor v,installs i,solar_panel p where p.PV_no=i.PV_no and v.tin_no=i.tin_no and Idate=(select min(Idate) from installs i);
+
+
+4)select u.u_add as address,sum(i.charge) as total from user u,installs i,solar_panel p where u.B_no=i.B_no and p.PV_no=i.PV_no and p.pv_type='poly' and exists(select u.u_add from user u,installs i,solar_panel p where u.B_no=i.B_no and p.pv_type='mono') group by u.u_add;
+
+
+6)select avg(i.charge) as average from user u, solar_panel p, installs i where i.pv_no=p.pv_no and i.Itype='commercial' group by i.charge having avg(i.charge);
+
+
