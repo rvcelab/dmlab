@@ -1,0 +1,128 @@
+create table Department1(d_no int primary key, d_name varchar(10) not null);
+
+
+
+create table Employee1(ssn int primary key, fname varchar(10) not null, lname varchar(20) not null, address varchar(10), salary double(10,2), gender varchar(10), dob date, d_no int, s_ssn int, foreign key(d_no) references Department1(d_no));
+
+alter table Employee1 add foreign key(s_ssn) references Employee1(ssn);
+
+
+
+create table Manages1(ssn int not null, d_no int not null, startdate date not null, primary key(ssn, d_no, startdate), foreign key(ssn) references Employee1(ssn), foreign key(d_no) references Department1(d_no));
+
+
+
+create table Location1(d_no int not null, location varchar(10) not null, primary key(d_no, location), foreign key(d_no) references Department1(d_no));
+
+
+
+create table Project1(pr_no int primary key not null, pr_name varchar(10) not null, d_no int not null, pr_location varchar(10), worth double(10, 2), status varchar(10), foreign key(d_no) references Department1(d_no));
+
+
+
+create table Works_on1(ssn int not null, no_of_hours int not null, pr_no int not null, primary key(ssn, no_of_hours, pr_no), foreign key(ssn) references Employee1(ssn), foreign key(pr_no) references Project1(pr_no));
+
+
+
+create table Dependent1(De_name varchar(10), De_id int not null primary key, ssn int, De_DOB date, relationship varchar(10), foreign key(ssn) references Employee1(ssn));
+
+
+
+insert into Department1 values(1, "HR");
+insert into Department1 values(2, "R&D");
+insert into Department1 values(3, "accounts");
+insert into Department1 values(4, "finance");
+insert into Department1 values(5, "RD");
+
+
+
+insert into Employee1(ssn, fname, lname, address, salary, gender, dob, d_no) values(101, "Abhi", "Kumar", "Bengalore", 10000.00, "M", '2000-11-11', 3);
+insert into Employee1(ssn, fname, lname, address, salary, gender, dob, d_no) values(102, "Deepak", "Gowda", "Mysore", 20000.00, "M", '2002-10-04', 4);
+insert into Employee1(ssn, fname, lname, address, salary, gender, dob, d_no) values(103, "Archana", "Gowda", "Belgaum", 40000.00, "F", '2002-09-28', 4);
+insert into Employee1(ssn, fname, lname, address, salary, gender, dob, d_no) values(104, "Karan", "Kumar", "Hubli", 15000.00, "M", '1998-04-23', 4);
+insert into Employee1(ssn, fname, lname, address, salary, gender, dob, d_no) values(105, "Kiran", "Sharama", "Udupi", 80000.00, "F", '1989-04-22', 5);
+insert into Employee1(ssn, fname, lname, address, salary, gender, dob, d_no) values(106, "Pavan", "Kumar", "Dharwad", 80000.00, "F", '1986-04-07', 5);
+
+update Employee1 set s_ssn = 104 where ssn = 101;
+update Employee1 set s_ssn = 101 where ssn = 102;
+update Employee1 set s_ssn = 101 where ssn = 103;
+update Employee1 set s_ssn = 103 where ssn = 104;
+update Employee1 set s_ssn = 101 where ssn = 105;
+update Employee1 set s_ssn = 101 where ssn = 106;
+
+
+
+insert into Manages1 values(101, 1, '2023-11-28');
+insert into Manages1 values(102, 2, '2023-06-23');
+insert into Manages1 values(103, 3, '2023-04-12');
+insert into Manages1 values(104, 3, '2023-07-11');
+
+
+
+insert into Location1 values(1, "Hubli");
+insert into Location1 values(2, "Mumbai");
+insert into Location1 values(3, "Kolkatta");
+insert into Location1 values(4, "Kerala");
+
+
+
+insert into Project1 values(11, "Web", 1, "Shivamoga", 900000, "Ongoing");
+insert into Project1 values(12, "IOT", 3, "Udupi", 500000, "Completed");
+insert into Project1 values(13, "Cloud", 2, "Bangalore", 800000, "Completed");
+insert into Project1 values(14, "DataBase", 2, "Mysore", 10000, "Ongoing");
+insert into Project1 values(15, "AR", 2, "Hubli", 200000, "Completed");
+
+
+
+insert into Works_on1 values(101, 2, 11);
+insert into Works_on1 values(102, 4, 12);
+insert into Works_on1 values(101, 3, 13);
+insert into Works_on1 values(102, 3, 13);
+insert into Works_on1 values(103, 4, 13);
+insert into Works_on1 values(101, 3, 14);
+insert into Works_on1 values(102, 3, 14);
+insert into Works_on1 values(104, 7, 14);
+insert into Works_on1 values(101, 3, 15);
+insert into Works_on1 values(102, 3, 15);
+
+
+
+
+insert into Dependent1 values("Avi", 1001, 101, '1993-01-22', "Friend");
+insert into Dependent1 values("Prajwal", 1002, 104, '1992-03-12', "Sibling");
+insert into Dependent1 values("Mukesh", 1003, 103, '1996-03-23', "O_Brother");
+insert into Dependent1 values("Loki", 1004, 102, '1999-11-23', "Cousin");
+
+
+
+
+Queries
+
+1.
+select e.fname,e.lname,d.d_name from Employee1 e,Department1 d where d.d_no=e.d_no and e.salary>(select avg(e2.salary) from Employee1 e2,Department1 d2 where  d2.d_name="finance");
+
+
+2.
+select e.fname, d.d_name from Employee1 e,Department1 d, Works_on1 w where e.d_no=d.d_no and e.ssn=w.ssn and w.pr_no in (select pr_no from Project1 where d_no=(select d_no from Department1 where d_name="R&D")) group by e.ssn having count(w.pr_no)>2;
+
+
+3.
+select p.pr_name,p.status,d.d_name from Project1 p,Department1 d where d.d_no=p.d_no and p.status="Ongoing";
+
+
+
+4.
+select distinct e.fname, d.d_name from Employee1 e, Department1 d where e.d_no=d.d_no and e.ssn in (select s_ssn from Employee1 where s_ssn in (select ssn from Works_on1 group by ssn having count(ssn)
+ >=1) group by s_ssn having count(s_ssn)>2);
+ 
+
+
+5.
+select d.De_name from Employee1 e,Dependent1 d, Project1 p, Works_on1 w where  d.ssn=e.ssn and e.ssn=w.ssn and w.pr_no=p.pr_no and p.status="Completed" group by d.De_name,e.ssn having sum(p.worth)>=1000000;
+
+
+
+
+6.
+select d.d_name,e.ssn,e.fname,e.lname from Department1 d,Employee1 e,Works_on1 w, Project1 p where e.ssn=w.ssn and w.pr_no=p.pr_no and p.d_no=d.d_no group by d.d_no,e.fname,e.lname,e.ssn having count(
+distinct p.pr_location)>1;
